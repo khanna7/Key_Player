@@ -1,8 +1,12 @@
 library(sna)
+library(statnet)
 
 # pick k numbers less than n. return S, T, where |S|=k and |T|=n-k, S union T = {1,2,..,n} 
 # no longer used, switched to using a mask (see get_random_mask)
-get_random_set <- function(n, k) {
+
+get_random_set <- function(G, k) {
+    # input G as the graph
+    n <- network.size(G)
     range <- 1:n
     samp <- sample(n, k)
     s <- range[range %in% samp]
@@ -100,12 +104,13 @@ greedy_optimize = function(A, k, metric, tolerance) {
 
 
 main = function(argv) {
-    n = as.numeric(argv[1]) # number of nodes in graph
-    p = as.numeric(argv[2]) # probability two nodes are connected
-    k = as.numeric(argv[3]) # number of nodes to find
-    tol = as.numeric(argv[4]) # tolerance to stop optimize algorithm at
-    t = as.numeric(argv[5]) # times to repeat the optimize algorithm
-    m = as.numeric(argv[6]) # metric (3 or 9)
+    ## n = as.numeric(argv[1]) # number of nodes in graph
+    ## p = as.numeric(argv[2]) # probability two nodes are connected
+    G = as.network(argv[[1]])
+    k = as.numeric(argv[[2]]) # number of nodes to find
+    tol = as.numeric(argv[[3]]) # tolerance to stop optimize algorithm at
+    t = as.numeric(argv[[4]]) # times to repeat the optimize algorithm
+    m = as.numeric(argv[[5]]) # metric (3 or 9)
    
     if (m == 3)
         metric <- metric_3
@@ -115,8 +120,6 @@ main = function(argv) {
         print("Invalid metric! Use 3 or 9 only.")
         q()
     }
-
-    G <- rgraph(n, p)
 
     for (i in 1:t) {
         S <- greedy_optimize(G, k, metric, tol)
