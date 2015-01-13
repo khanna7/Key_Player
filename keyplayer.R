@@ -27,22 +27,23 @@ reachability = function(A) {
 # KPP-Neg metric:
 
 # number of disconnected pairs (Borgatti (3))
-# minimize sum(i>j) R_ij
+# maximize D =  1 - 2 * sum(i>j) R_ij / (n * (n-1))
 # Equation (4) should be more tractable in the optimization context (although lose out on elegance of equation)
 metric_3 <- function(A) {
+    n <- length(A[1,])
     R <- reachability(A);
     s <- sum(R[lower.tri(R)]);
-    return(s);
+    return(1 - 2*s/(n * (n-1)));
 }
 
 # Borghatti (9)
-# maximize D_F = 1 - 2 * (sum(i>j) (1 / d_ij) / (n * n-1)
-# equivalent to minimizing just the sum
+# maximize D_F = 1 - 2 * (sum(i>j) (1 / d_ij) / (n * (n-1))
 metric_9 <- function(A) {
+    n <- length(A[1,])
     D <- graph_distance(A);
     Dr <- 1/D
     s <- sum(Dr[lower.tri(D)]);
-    return(s);
+    return(1 - 2*s/(n * (n-1)));
 }
 
 # return something like [TRUE, FALSE, FALSE, TRUE, ...] where there are n total values and k FALSEs
@@ -70,8 +71,10 @@ greedy_optimize = function(A, k, metric, tolerance) {
     fit <- metric(B)
 
     print(paste("Fit: ", fit))
+    i <- 0
     while (TRUE) {
-        Dfit = Inf
+        i <- i + 1
+        Dfit = 0
         pair = NULL
         for (u in which(!t)) {
             for (v in which(t)) {
@@ -81,23 +84,23 @@ greedy_optimize = function(A, k, metric, tolerance) {
                 
                 B_ = trimmed_array(A, t_)
                 fit_ = metric(B_)
-                d = fit - fit_
-                if ((d >= 0) && (d < Dfit)) {
+                d = fit_ - fit
+                if ((d >= 0) && (d > Dfit)) {
                     Dfit = d
                     pair = list(u,v)
                 }
             }
         }
-        if (Dfit < tolerance)
+        if (Dfit < tolerance || is.null(pair))
             break
-        u <- pair[1]
-        v <- pair[2]
+        u <- pair[[1]]
+        v <- pair[[2]]
         t[v] = FALSE
         t[u] = TRUE
-        fit = fit - d
+        fit = fit + d
     }
 
-    print(paste("New fit: ", fit));
+    print(paste("New fit (", i, " iterations): ", fit));
     return(which(!t));
 }
 
@@ -120,8 +123,8 @@ main = function(argv) {
         q()
     }
 
+    A <- as.matrix(G)
     for (i in 1:t) {
-        A <- as.matrix(G)
         S <- greedy_optimize(A, k, metric, tol)
         print(sprintf("nodes: %s", paste(S, collapse=",")))
         cat('\n')
