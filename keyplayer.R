@@ -1,4 +1,3 @@
-library(sna)
 library(statnet)
 
 # pick k numbers less than n. return S, T, where |S|=k and |T|=n-k, S union T = {1,2,..,n} 
@@ -122,7 +121,8 @@ main = function(argv) {
     }
 
     for (i in 1:t) {
-        S <- greedy_optimize(G, k, metric, tol)
+        A <- as.matrix(G)
+        S <- greedy_optimize(A, k, metric, tol)
         print(sprintf("nodes: %s", paste(S, collapse=",")))
         cat('\n')
     }
