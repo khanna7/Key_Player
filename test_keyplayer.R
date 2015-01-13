@@ -23,15 +23,15 @@
   
   ## Test function
   list.input <- list(rep(0, 5))
-  list.input[[1]] <- flo.net
-  list.input[[2]] <- 2
-  list.input[[3]] <- 0.001
-  list.input[[4]] <- 10
-  list.input[[5]] <- 3
+  list.input[[1]] <- flo.net #network
+  list.input[[2]] <- 5 #cardinality of KP-set
+  list.input[[3]] <- 0.1 #tolerance
+  list.input[[4]] <- 560 #number of iterations (or starting sets)
+  list.input[[5]] <- 3 #metric
 
   main(list.input)
   
-  list.input[[5]] <- 9
+  list.input[[5]] <- 9 # metric
   main(list.input)
 
 ###################################################################
