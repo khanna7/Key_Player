@@ -20,7 +20,7 @@ graph_distance <- function(x) {
 
 reachability = function(A) {
     D = graph_distance(A)
-    return (D > 0);
+    return ((D > 0) & (D < Inf));
 }
 
 
