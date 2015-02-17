@@ -1,5 +1,11 @@
 # ignoreeval is TRUE
 
+library(sna)
+library(network)
+library(foreach)
+dyn.load("bet.so")
+
+
 asserteq = function(a, b, name) {
     if (sum(abs(a-b)) > 0.00001) {
         print(paste("Not equal! ", name))
@@ -23,6 +29,7 @@ btn_wrapper <- function(dat, p) {
     return(c)
 }
 
+
 btn_wrapper_apply <- function(dat, p) {
     dat <- as.edgelist.sna(dat)
     n <- attr(dflo, "n")
@@ -33,42 +40,20 @@ btn_wrapper_apply <- function(dat, p) {
         x <- .Call("betweenness_partial", dat, n, NROW(dflo), 0, st, end)
         return(x)
     }
-    cl <- lapply(1:p, f)
-    rowSums(data.frame(cl))
-    #c <- rep(0, n)
-    #for (i in 1:p) {
-    #    c <- c + cl[[i]]
-    #}
-    #return(c)
+    c <- foreach(i=1:p, .combine='+') %do% f(i)
+    return(c)
 }
  
 
-library(sna)
-library(network)
-dyn.load("bet.so")
 
 data(flo)
-dflo = as.edgelist.sna(flo)
-n <- attr(dflo, "n")
-
-a <- betweenness(flo)
-b <- .Call("betweenness_partial", dflo, n, NROW(dflo), 0, as.integer(0), as.integer(n))
-
-asserteq(a, b, "btn ccall")
-
-c <- rep(0, n)
-for (i in c(0,4,8,12)) {
-    c <- c + .Call("betweenness_partial", dflo, n, NROW(dflo), 0, as.integer(i), as.integer(i+4));
-}
-
-asserteq(a, c, "btn ccall 4")
 
 for (p in c(1,2,4,8,16)) {
-    d <- btn_wrapper(flo, p)
-    asserteq(a, d, paste("wrapper ",p))
+    b <- btn_wrapper(flo, p)
+    asserteq(a, b, paste("wrapper ",p))
 }
 
 for (p in c(1,2,4,8,16)) {
-    d <- btn_wrapper_apply(flo, p)
-    asserteq(a, d, paste("wrapper-sapply ",p))
+    b <- btn_wrapper_apply(flo, p)
+    asserteq(a, b, paste("wrapper-sapply ",p))
 }
