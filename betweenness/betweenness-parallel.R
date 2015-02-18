@@ -1,8 +1,11 @@
+load.custom.lib = function() {
+    script.dir <- dirname(sys.frame(1)$ofile)
+    dyn.load(script.dir + "/lib/bet.so")
+}
 
 # "betweenness" from sna, all default options.
 mybetweenness = function (dat, g = 1, nodes = NULL, gmode = "digraph", diag = FALSE, 
-    tmaxdev = FALSE, cmode = "directed", geodist.precomp = NULL, 
-    
+    tmaxdev = FALSE, cmode = "directed", geodist.precomp = NULL)
 {
     dat <- as.edgelist.sna(dat)
     n <- attr(dat, "n")
@@ -25,6 +28,25 @@ mybetweenness = function (dat, g = 1, nodes = NULL, gmode = "digraph", diag = FA
     bet <- bet[nodes]
     return(bet)
 }
-# ignoreeval is TRUE
 
+# brn_wrapper_dopar from the tests
+betweenness.parallel <- function(dat, p) {
+    dat <- as.edgelist.sna(dat)
+    n <- attr(dat, "n")
+        
+    if (n %% p != 0) {
+        m <- n + (p - n%%p)
+        delta <- m / p
+    }
+    else
+        delta <- n / p
 
+    c <- foreach(i=1:p, .combine='+', .inorder=FALSE) %dopar%
+    {
+        st <- as.integer((i-1) * delta)
+        end <- min(as.integer(st + delta), n)
+        .Call("betweenness_partial", dat, n, NROW(dat), 0, st, end)
+    }
+
+    return(c)
+}
