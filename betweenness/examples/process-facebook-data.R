@@ -24,7 +24,7 @@ registerDoParallel(cl)
 
 fb.deg2.btwn <- betweenness.parallel(fb.net.deg.gr.2, np)
 
-save(fb.deg2.btwn, file="fb-between.rdata")
+save(fb.deg2.btwn, file="fb2.rdata")
 
 # Cleanup
 stopCluster(cl)
