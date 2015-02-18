@@ -1,6 +1,8 @@
 #!/bin/bash
 
 #SBATCH --ntasks=8
+#SBATCH --mem-per-cpu=24000
+#SBATCH --partition=sandyb
 
 source /etc/profile
 

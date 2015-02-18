@@ -1,8 +1,3 @@
-load.custom.lib = function() {
-    script.dir <- dirname(sys.frame(1)$ofile)
-    dyn.load(script.dir + "/lib/bet.so")
-}
-
 # "betweenness" from sna, all default options.
 mybetweenness = function (dat, g = 1, nodes = NULL, gmode = "digraph", diag = FALSE, 
     tmaxdev = FALSE, cmode = "directed", geodist.precomp = NULL)
