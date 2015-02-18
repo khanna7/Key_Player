@@ -39,7 +39,7 @@ betweenness.parallel <- function(dat, p) {
     c <- foreach(i=1:p, .combine='+', .inorder=FALSE) %dopar%
     {
         st <- as.integer((i-1) * delta)
-        end <- min(as.integer(st + delta), n)
+        end <- as.integer(min(st + delta, n))
         .Call("betweenness_partial", dat, n, NROW(dat), 0, st, end)
     }
 
